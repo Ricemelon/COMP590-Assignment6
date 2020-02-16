@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class TreasureHunter : MonoBehaviour
 {
+    public GameObject head;
     public TreasureHunterInventory inventory;
     public CollectibleTreasure[] PointerArray;
-    public TextMesh win;
+    public int[] numberofEach = new int[3];
+    public TextMesh numitems;
     public TextMesh score;
     public int count = 0;
     void Start()
@@ -17,7 +19,32 @@ public class TreasureHunter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(Input.GetKeyDown("9")){ //code for how to raycast was based off of Nick Rewkowski's VrPawn teleport code
+            RaycastHit outHit;
+            if(Physics.Raycast(head.transform.position,head.transform.forward,out outHit, 100.0f)){
+                if(outHit.collider.gameObject.GetComponent("CollectibleTreasure")){
+                    int objectvalue = outHit.collider.gameObject.GetComponent<CollectibleTreasure>().value;
+                    if(objectvalue==1){
+                        numberofEach[0]++;
+                    } else if(objectvalue==5){
+                        numberofEach[1]++;
+                    } else if(objectvalue==10){
+                        numberofEach[2]++;
+                    }
+                    Destroy(outHit.collider.gameObject);
+                }
+            }
+            print("You hit the collector button");
+        }
+
         if(Input.GetKeyDown("1")){
+            print("You hit the score button");
+            int sum = numberofEach[0]*1+numberofEach[1]*5+numberofEach[2]*10;
+            int totalitems = numberofEach[0] + numberofEach[1] + numberofEach[2];
+            score.text = "Score = "+sum + "Ammar Puri";
+            numitems.text = "Total Items = "+totalitems;
+        }
+        /*if(Input.GetKeyDown("1")){
             if(inventory.treasures.Contains(PointerArray[0])==false){
                 inventory.treasures.Add(PointerArray[0]);
             }
@@ -45,7 +72,7 @@ public class TreasureHunter : MonoBehaviour
 
         if(inventory.treasures.Count==3){
             win.text="You Win! - Ammar Puri";
-        }
+        }*/
     }
 
     public int countScore(){
