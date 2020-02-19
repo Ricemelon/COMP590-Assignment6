@@ -1,19 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TreasureHunter : MonoBehaviour
 {
     public GameObject head;
     public TreasureHunterInventory inventory;
-    public CollectibleTreasure[] PointerArray;
-    public int[] numberofEach = new int[3];
     public TextMesh numitems;
     public TextMesh score;
     public int count = 0;
     void Start()
     {
-        
+        for(int i=0;i<inventory.treasures.Count;i++){
+            inventory.amount.Add(0);
+        }
     }
 
     // Update is called once per frame
@@ -23,14 +24,26 @@ public class TreasureHunter : MonoBehaviour
             RaycastHit outHit;
             if(Physics.Raycast(head.transform.position,head.transform.forward,out outHit, 100.0f)){
                 if(outHit.collider.gameObject.GetComponent("CollectibleTreasure")){
-                    int objectvalue = outHit.collider.gameObject.GetComponent<CollectibleTreasure>().value;
-                    if(objectvalue==1){
+                    print("hit");
+                    string objectname = outHit.collider.gameObject.GetComponent<CollectibleTreasure>().name;
+                    bool exist = false;
+                    for(int i=0;i<inventory.treasures.Count;i++){
+                        if(inventory.treasures.ElementAt(i).name==objectname){
+                            inventory.amount[i]++;
+                            exist = true;
+                        }
+                    }
+                    if(exist==false){
+                        inventory.treasures.Add(outHit.collider.gameObject.GetComponent<CollectibleTreasure>());
+                        inventory.amount.Add(1);
+                    }
+                    /*if(objectname==1){
                         numberofEach[0]++;
                     } else if(objectvalue==5){
                         numberofEach[1]++;
                     } else if(objectvalue==10){
                         numberofEach[2]++;
-                    }
+                    }*/
                     Destroy(outHit.collider.gameObject);
                 }
             }
@@ -39,9 +52,13 @@ public class TreasureHunter : MonoBehaviour
 
         if(Input.GetKeyDown("1")){
             print("You hit the score button");
-            int sum = numberofEach[0]*1+numberofEach[1]*5+numberofEach[2]*10;
-            int totalitems = numberofEach[0] + numberofEach[1] + numberofEach[2];
-            score.text = "Score = "+sum + "Ammar Puri";
+            int sum = 0;
+            int totalitems = 0;
+            for(int j=0;j<inventory.treasures.Count;j++){
+                sum += inventory.treasures[j].value*inventory.amount[j];  
+                totalitems += inventory.amount[j];
+            }
+            score.text = "Score = "+sum + " Ammar Puri";
             numitems.text = "Total Items = "+totalitems;
         }
         /*if(Input.GetKeyDown("1")){
@@ -75,11 +92,11 @@ public class TreasureHunter : MonoBehaviour
         }*/
     }
 
-    public int countScore(){
+    /*public int countScore(){
         count=0;
         for(int i=0;i<inventory.treasures.Count;i++){
             count+=inventory.treasures[i].value;
         }
         return count;
-    }
+    }*/
 }
