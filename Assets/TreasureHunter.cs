@@ -150,6 +150,14 @@ public class TreasureHunter : MonoBehaviour
             AttachmentRule howToAttach=pressedA?AttachmentRule.KeepWorld:AttachmentRule.SnapToTarget;
             attachGameObjectToAChildGameObject(outHit.collider.gameObject,rightPointerObject.gameObject,howToAttach,howToAttach,AttachmentRule.KeepWorld,true);
             grabbed=outHit.collider.gameObject.GetComponent<CollectibleTreasure>();
+
+            //
+            Vector3 scaleChange = new Vector3(-0.01f, -0.01f, -0.01f);
+            while(grabbed.transform.localScale.y>0.05f){
+                grabbed.transform.localScale += scaleChange;
+            }
+            //
+
         }
     }
     void letGo(){
