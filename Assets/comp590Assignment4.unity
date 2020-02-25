@@ -349,12 +349,12 @@ PrefabInstance:
     - target: {fileID: 6135706278454801653, guid: a9444e6ad05cab54794a8901165fb68c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.35
+      value: 3.33
       objectReference: {fileID: 0}
     - target: {fileID: 6135706278454801653, guid: a9444e6ad05cab54794a8901165fb68c,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.08
       objectReference: {fileID: 0}
     - target: {fileID: 6135706278454801653, guid: a9444e6ad05cab54794a8901165fb68c,
         type: 3}
@@ -399,6 +399,11 @@ PrefabInstance:
     - target: {fileID: 6135706278454801653, guid: a9444e6ad05cab54794a8901165fb68c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6342331282131026840, guid: a9444e6ad05cab54794a8901165fb68c,
+        type: 3}
+      propertyPath: m_UseGravity
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -508,6 +513,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 122cd0690df680143b14173f80c7c183, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  waist: {x: 0, y: -1, z: 0}
   head: {fileID: 214160025}
   leftPointerObject: {fileID: 4415633335941921633}
   rightPointerObject: {fileID: 98665137}
@@ -896,6 +902,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5898206102754596392, guid: 0931f1bc0b233304fabf19fd162018cb,
+        type: 3}
+      propertyPath: name
+      value: CubeCollectible
+      objectReference: {fileID: 0}
     - target: {fileID: 5898206102754596399, guid: 0931f1bc0b233304fabf19fd162018cb,
         type: 3}
       propertyPath: m_Name
@@ -1266,6 +1277,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: CylinderCollectible (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6135706278454801651, guid: a9444e6ad05cab54794a8901165fb68c,
+        type: 3}
+      propertyPath: m_ReceiveShadows
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6135706278454801653, guid: a9444e6ad05cab54794a8901165fb68c,
         type: 3}
