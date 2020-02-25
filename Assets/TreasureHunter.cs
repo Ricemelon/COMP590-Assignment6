@@ -21,6 +21,8 @@ public class TreasureHunter : MonoBehaviour
     public TextMesh displayscore;
     public int count = 0;
     CollectibleTreasure grabbed;
+
+    private float presize = 1f;
     void Start()
     {
         for(int i=0;i<inventory.treasures.Count;i++){
@@ -163,8 +165,11 @@ public class TreasureHunter : MonoBehaviour
             grabbed=outHit.collider.gameObject.GetComponent<CollectibleTreasure>();
 
             //
+            string prefabname = grabbed.name;
+            var prefab = Resources.Load<GameObject>(prefabname);
             Vector3 scaleChange = new Vector3(-0.01f, -0.01f, -0.01f);
-            while(grabbed.transform.localScale.y>0.05f){
+            presize = grabbed.transform.localScale.y;
+            while(grabbed.transform.localScale.y>0.5*prefab.gameObject.GetComponent<Renderer>().bounds.size.y){
                 grabbed.transform.localScale += scaleChange;
             }
             //
@@ -225,6 +230,12 @@ public class TreasureHunter : MonoBehaviour
                 thingOnGun=overlappingThingsWithLeftHand[0].gameObject;
                 grabbed=null;
             }else{
+                string prefabname = grabbed.name;
+                var prefab = Resources.Load<GameObject>(prefabname);
+                Vector3 scaleChange = new Vector3(-0.01f, -0.01f, -0.01f);
+                while(grabbed.transform.localScale.y<prefab.gameObject.GetComponent<Renderer>().bounds.size.y){
+                    grabbed.transform.localScale -= scaleChange;
+                }
                 detachGameObject(grabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
                 simulatePhysics(grabbed.gameObject,Vector3.zero,true);
                 grabbed=null;
