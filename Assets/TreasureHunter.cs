@@ -178,12 +178,16 @@ public class TreasureHunter : MonoBehaviour
     }
     void letGo(){
         if (grabbed){
-            waist= center.transform.position - new Vector3(0,0.75f,0);
+            score.text = "first";
+            waist= center.transform.position - new Vector3(0,1,0);
             Collider[] overlappingThingsWithLeftHand=Physics.OverlapSphere(leftPointerObject.transform.position,0.01f,collectiblesMask);
-            Collider[] waisttrue=Physics.OverlapSphere(waist,.25f,collectiblesMask);
+            Collider[] waisttrue=Physics.OverlapSphere(waist,.5f,collectiblesMask);
+            score.text= "second";
             if(waisttrue.Length>0){
+                score.text="third";
                 string objectname = grabbed.gameObject.GetComponent<CollectibleTreasure>().name;
                 bool exist = false;
+                score.text = "fourth";
                 for(int i=0;i<inventory.treasures.Count;i++){
                     if(inventory.treasures.ElementAt(i).name==objectname){
                         inventory.amount[i]++;
