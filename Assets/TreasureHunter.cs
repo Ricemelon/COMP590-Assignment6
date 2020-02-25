@@ -17,6 +17,7 @@ public class TreasureHunter : MonoBehaviour
     public TreasureHunterInventory inventory;
     public TextMesh numitems;
     public TextMesh score;
+    public TextMesh displayscore;
     public int count = 0;
     CollectibleTreasure grabbed;
     void Start()
@@ -55,6 +56,30 @@ public class TreasureHunter : MonoBehaviour
                         numberofEach[2]++;
                     }*/
                     Destroy(outHit.collider.gameObject);
+                    int sum = 0;
+                    int totalitems = 0;
+                    int spheres = 0;
+                    int cylinders = 0;
+                    int cubes = 0;
+                    int capsules = 0;
+                    for(int j=0;j<inventory.treasures.Count;j++){
+                        if(inventory.treasures[j].value==1){
+                            cylinders = inventory.amount[j];
+                        }
+                        if(inventory.treasures[j].value==10){
+                            cubes = inventory.amount[j];
+                        }
+                        if(inventory.treasures[j].value==20){
+                            capsules = inventory.amount[j];
+                        }
+                        if(inventory.treasures[j].value==5){
+                            spheres = inventory.amount[j];
+                        }
+                        sum += inventory.treasures[j].value*inventory.amount[j];  
+                        totalitems += inventory.amount[j];
+
+                    }
+                    displayscore.text = totalitems+" items \n Spheres (5 ea):"+spheres+" \n Cubes (10 ea): "+cubes+"\n Capsules (20 ea): "+capsules+"\n Cylinders (1 ea): "+cylinders+"\n Total score: "+sum;
                 }
             }
             print("You hit the collector button");
@@ -72,14 +97,9 @@ public class TreasureHunter : MonoBehaviour
 
         if(Input.GetKeyDown("1")){
             print("You hit the score button");
-            int sum = 0;
-            int totalitems = 0;
-            for(int j=0;j<inventory.treasures.Count;j++){
-                sum += inventory.treasures[j].value*inventory.amount[j];  
-                totalitems += inventory.amount[j];
-            }
-            score.text = "Score = "+sum + " Ammar Puri";
-            numitems.text = "Total Items = "+totalitems;
+            //score.text = "Score = "+sum + " Ammar Puri & Shreya Gullapalli \n";
+            //numitems.text = "Total Items = "+totalitems+"\n";
+            
         }
         /*if(Input.GetKeyDown("1")){
             if(inventory.treasures.Contains(PointerArray[0])==false){
