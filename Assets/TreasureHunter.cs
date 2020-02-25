@@ -108,6 +108,25 @@ public class TreasureHunter : MonoBehaviour
             letGo();
         }
 
+        if(OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger)){
+            score.text="hit button3";
+            Collider[] handgrip = Physics.OverlapSphere(leftPointerObject.transform.position,0.1f,collectiblesMask);
+            attachGameObjectToAChildGameObject(handgrip[0].gameObject,leftPointerObject.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,true);
+            grabbed=handgrip[0].gameObject.GetComponent<CollectibleTreasure>();
+            Vector3 scaleChange = new Vector3(-0.01f, -0.01f, -0.01f);
+            presize = grabbed.transform.localScale.y;
+        }
+
+        if(OVRInput.GetUp(OVRInput.RawButton.LIndexTrigger)){
+            score.text="let go button3";
+            letGo();
+            
+        }
+
+        if(OVRInput.GetDown(OVRInput.RawButton.LHandTrigger)){
+            score.text="Shreya Gullapalli and Ammar Puri";
+        }
+
         if(Input.GetKeyDown("1")){
             print("You hit the score button");
             //score.text = "Score = "+sum + " Ammar Puri & Shreya Gullapalli \n";
@@ -168,9 +187,7 @@ public class TreasureHunter : MonoBehaviour
             
             Vector3 scaleChange = new Vector3(-0.01f, -0.01f, -0.01f);
             presize = grabbed.transform.localScale.y;
-            while(grabbed.transform.localScale.y>0.5f){
-                grabbed.transform.localScale += scaleChange;
-            }
+            grabbed.transform.localScale = new Vector3(2,2,2);
             //
 
         }
