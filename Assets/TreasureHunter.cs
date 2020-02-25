@@ -3,13 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+public enum AttachmentRule{KeepRelative,KeepWorld,SnapToTarget};
+
 public class TreasureHunter : MonoBehaviour
 {
+    public Vector3 waist = new Vector3(0,-1,0);
     public GameObject head;
+    public GameObject leftPointerObject;
+    public GameObject rightPointerObject;
+    GameObject thingOnGun;
+    public LayerMask collectiblesMask;
+    Vector3 previousPointerPos;
     public TreasureHunterInventory inventory;
     public TextMesh numitems;
     public TextMesh score;
     public int count = 0;
+    CollectibleTreasure grabbed;
     void Start()
     {
         for(int i=0;i<inventory.treasures.Count;i++){
@@ -22,10 +31,11 @@ public class TreasureHunter : MonoBehaviour
     {
         if(Input.GetKeyDown("9")){ //code for how to raycast was based off of Nick Rewkowski's VrPawn teleport code
             RaycastHit outHit;
-            if(Physics.Raycast(head.transform.position,head.transform.forward,out outHit, 100.0f)){
+            if(Physics.Raycast(rightPointerObject.transform.position,rightPointerObject.transform.forward,out outHit, 100.0f)){
                 if(outHit.collider.gameObject.GetComponent("CollectibleTreasure")){
                     print("hit");
-                    string objectname = outHit.collider.gameObject.GetComponent<CollectibleTreasure>().name;
+                    GameObject item = outHit.collider.gameObject;
+                    /*string objectname = outHit.collider.gameObject.GetComponent<CollectibleTreasure>().name;
                     bool exist = false;
                     for(int i=0;i<inventory.treasures.Count;i++){
                         if(inventory.treasures.ElementAt(i).name==objectname){
@@ -36,7 +46,7 @@ public class TreasureHunter : MonoBehaviour
                     if(exist==false){
                         inventory.treasures.Add(outHit.collider.gameObject.GetComponent<CollectibleTreasure>());
                         inventory.amount.Add(1);
-                    }
+                    }*/
                     /*if(objectname==1){
                         numberofEach[0]++;
                     } else if(objectvalue==5){
@@ -48,6 +58,16 @@ public class TreasureHunter : MonoBehaviour
                 }
             }
             print("You hit the collector button");
+        }
+
+        if(OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger)){
+            score.text="hit button";
+            forceGrab(true);
+        }
+
+        if(OVRInput.GetUp(OVRInput.RawButton.RIndexTrigger)){
+            score.text="let go button";
+            letGo();
         }
 
         if(Input.GetKeyDown("1")){
@@ -99,4 +119,86 @@ public class TreasureHunter : MonoBehaviour
         }
         return count;
     }*/
+
+    void forceGrab(bool pressedA){
+        RaycastHit outHit;
+        numitems.text="test";
+        //notice I'm using the layer mask again
+        if (Physics.Raycast(rightPointerObject.transform.position, rightPointerObject.transform.up, out outHit, 100.0f,collectiblesMask))
+        {
+            numitems.text="hit";
+            AttachmentRule howToAttach=pressedA?AttachmentRule.KeepWorld:AttachmentRule.SnapToTarget;
+            attachGameObjectToAChildGameObject(outHit.collider.gameObject,rightPointerObject.gameObject,howToAttach,howToAttach,AttachmentRule.KeepWorld,true);
+            grabbed=outHit.collider.gameObject.GetComponent<CollectibleTreasure>();
+        }
+    }
+    void letGo(){
+        if (grabbed){
+            Collider[] overlappingThingsWithLeftHand=Physics.OverlapSphere(leftPointerObject.transform.position,0.01f,collectiblesMask);
+            if (overlappingThingsWithLeftHand.Length>0){
+                if (thingOnGun){
+                    detachGameObject(thingOnGun,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
+                    simulatePhysics(thingOnGun,Vector3.zero,true);
+                }
+                attachGameObjectToAChildGameObject(overlappingThingsWithLeftHand[0].gameObject,leftPointerObject,AttachmentRule.SnapToTarget,AttachmentRule.SnapToTarget,AttachmentRule.KeepWorld,true);
+                thingOnGun=overlappingThingsWithLeftHand[0].gameObject;
+                grabbed=null;
+            }else{
+                detachGameObject(grabbed.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
+                simulatePhysics(grabbed.gameObject,Vector3.zero,true);
+                grabbed=null;
+            }
+            numitems.text="let go";
+        }
+    }
+    public void attachGameObjectToAChildGameObject(GameObject GOToAttach, GameObject newParent, AttachmentRule locationRule, AttachmentRule rotationRule, AttachmentRule scaleRule, bool weld){
+        GOToAttach.transform.parent=newParent.transform;
+        handleAttachmentRules(GOToAttach,locationRule,rotationRule,scaleRule);
+        if (weld){
+            simulatePhysics(GOToAttach,Vector3.zero,false);
+        }
+    }
+
+    public static void detachGameObject(GameObject GOToDetach, AttachmentRule locationRule, AttachmentRule rotationRule, AttachmentRule scaleRule){
+        //making the parent null sets its parent to the world origin (meaning relative & global transforms become the same)
+        GOToDetach.transform.parent=null;
+        handleAttachmentRules(GOToDetach,locationRule,rotationRule,scaleRule);
+    }
+
+    public static void handleAttachmentRules(GameObject GOToHandle, AttachmentRule locationRule, AttachmentRule rotationRule, AttachmentRule scaleRule){
+        GOToHandle.transform.localPosition=
+        (locationRule==AttachmentRule.KeepRelative)?GOToHandle.transform.position:
+        //technically don't need to change anything but I wanted to compress into ternary
+        (locationRule==AttachmentRule.KeepWorld)?GOToHandle.transform.localPosition:
+        new Vector3(0,0,0);
+
+        //localRotation in Unity is actually a Quaternion, so we need to specifically ask for Euler angles
+        GOToHandle.transform.localEulerAngles=
+        (rotationRule==AttachmentRule.KeepRelative)?GOToHandle.transform.eulerAngles:
+        //technically don't need to change anything but I wanted to compress into ternary
+        (rotationRule==AttachmentRule.KeepWorld)?GOToHandle.transform.localEulerAngles:
+        new Vector3(0,0,0);
+
+        GOToHandle.transform.localScale=
+        (scaleRule==AttachmentRule.KeepRelative)?GOToHandle.transform.lossyScale:
+        //technically don't need to change anything but I wanted to compress into ternary
+        (scaleRule==AttachmentRule.KeepWorld)?GOToHandle.transform.localScale:
+        new Vector3(1,1,1);
+    }
+    public void simulatePhysics(GameObject target,Vector3 oldParentVelocity,bool simulate){
+        Rigidbody rb=target.GetComponent<Rigidbody>();
+        if (rb){
+            if (!simulate){
+                Destroy(rb);
+            } 
+        } else{
+            if (simulate){
+                //there's actually a problem here relative to the UE4 version since Unity doesn't have this simple "simulate physics" option
+                //The object will NOT preserve momentum when you throw it like in UE4.
+                //need to set its velocity itself.... even if you switch the kinematic/gravity settings around instead of deleting/adding rb
+                Rigidbody newRB=target.AddComponent<Rigidbody>();
+                newRB.velocity=oldParentVelocity;
+            }
+        }
+    }
 }
