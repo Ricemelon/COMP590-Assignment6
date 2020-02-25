@@ -7,8 +7,9 @@ public enum AttachmentRule{KeepRelative,KeepWorld,SnapToTarget};
 
 public class TreasureHunter : MonoBehaviour
 {
-    public Vector3 waist = new Vector3(0,-1,0);
+    public Vector3 waist;
     public GameObject head;
+    public GameObject center;
     public GameObject leftPointerObject;
     public GameObject rightPointerObject;
     GameObject thingOnGun;
@@ -95,6 +96,16 @@ public class TreasureHunter : MonoBehaviour
             letGo();
         }
 
+        if(OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)){
+            score.text="hit button2";
+            forceGrab(false);
+        }
+
+        if(OVRInput.GetUp(OVRInput.RawButton.RHandTrigger)){
+            score.text="let go button2";
+            letGo();
+        }
+
         if(Input.GetKeyDown("1")){
             print("You hit the score button");
             //score.text = "Score = "+sum + " Ammar Puri & Shreya Gullapalli \n";
@@ -162,11 +173,53 @@ public class TreasureHunter : MonoBehaviour
     }
     void letGo(){
         if (grabbed){
+            waist= center.transform.position - new Vector3(0,0.75f,0);
             Collider[] overlappingThingsWithLeftHand=Physics.OverlapSphere(leftPointerObject.transform.position,0.01f,collectiblesMask);
+            Collider[] waisttrue=Physics.OverlapSphere(waist,.25f,collectiblesMask);
+            if(waisttrue.Length>0){
+                string objectname = grabbed.gameObject.GetComponent<CollectibleTreasure>().name;
+                bool exist = false;
+                for(int i=0;i<inventory.treasures.Count;i++){
+                    if(inventory.treasures.ElementAt(i).name==objectname){
+                        inventory.amount[i]++;
+                        exist = true;
+                    }
+                }
+                if(exist==false){
+                    inventory.treasures.Add(grabbed.gameObject.GetComponent<CollectibleTreasure>());
+                    inventory.amount.Add(1);
+                }
+                Destroy(grabbed.gameObject);
+                int sum = 0;
+                    int totalitems = 0;
+                    int spheres = 0;
+                    int cylinders = 0;
+                    int cubes = 0;
+                    int capsules = 0;
+                    for(int j=0;j<inventory.treasures.Count;j++){
+                        if(inventory.treasures[j].value==1){
+                            cylinders = inventory.amount[j];
+                        }
+                        if(inventory.treasures[j].value==10){
+                            cubes = inventory.amount[j];
+                        }
+                        if(inventory.treasures[j].value==20){
+                            capsules = inventory.amount[j];
+                        }
+                        if(inventory.treasures[j].value==5){
+                            spheres = inventory.amount[j];
+                        }
+                        sum += inventory.treasures[j].value*inventory.amount[j];  
+                        totalitems += inventory.amount[j];
+
+                    }
+                    displayscore.text = totalitems+" items \n Spheres (5 ea):"+spheres+" \n Cubes (10 ea): "+cubes+"\n Capsules (20 ea): "+capsules+"\n Cylinders (1 ea): "+cylinders+"\n Total score: "+sum;
+            }
             if (overlappingThingsWithLeftHand.Length>0){
                 if (thingOnGun){
                     detachGameObject(thingOnGun,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld);
                     simulatePhysics(thingOnGun,Vector3.zero,true);
+                    
                 }
                 attachGameObjectToAChildGameObject(overlappingThingsWithLeftHand[0].gameObject,leftPointerObject,AttachmentRule.SnapToTarget,AttachmentRule.SnapToTarget,AttachmentRule.KeepWorld,true);
                 thingOnGun=overlappingThingsWithLeftHand[0].gameObject;
