@@ -21,6 +21,7 @@ public class TreasureHunter : MonoBehaviour
     public TextMesh displayscore;
     public int count = 0;
     CollectibleTreasure grabbed;
+    bool rotate;
 
     private float presize = 1f;
     void Start()
@@ -33,6 +34,12 @@ public class TreasureHunter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(rotate){
+            head.transform.Rotate(Random.Range(-10,10),Random.Range(-10,10),Random.Range(-10,10),Space.Self);
+        }
+        if(!rotate){
+            head.transform.rotation = new Quaternion(0,0,0,0);
+        }
         if(Input.GetKeyDown("9")){ //code for how to raycast was based off of Nick Rewkowski's VrPawn teleport code
             RaycastHit outHit;
             if(Physics.Raycast(rightPointerObject.transform.position,rightPointerObject.transform.forward,out outHit, 100.0f)){
@@ -90,29 +97,39 @@ public class TreasureHunter : MonoBehaviour
 
         if(OVRInput.GetDown(OVRInput.RawButton.RIndexTrigger)){
             score.text="hit button";
+            //head.transform.position = new Vector3(0,10,0);
             forceGrab(true);
         }
 
         if(OVRInput.GetUp(OVRInput.RawButton.RIndexTrigger)){
             score.text="let go button";
             letGo();
+            //head.transform.position = new Vector3(0,-1,0);
         }
 
         if(OVRInput.GetDown(OVRInput.RawButton.RHandTrigger)){
             score.text="hit button2";
+            //head.transform.position = new Vector3(0,10,0);
             forceGrab(false);
         }
 
         if(OVRInput.GetUp(OVRInput.RawButton.RHandTrigger)){
             score.text="let go button2";
             letGo();
+            //head.transform.position = new Vector3(0,-1,0);
         }
 
         if(OVRInput.GetDown(OVRInput.RawButton.LIndexTrigger)){
             score.text="hit button3";
+            //head.transform.position = new Vector3(0,10,0);
             Collider[] handgrip = Physics.OverlapSphere(leftPointerObject.transform.position,0.1f,collectiblesMask);
             attachGameObjectToAChildGameObject(handgrip[0].gameObject,leftPointerObject.gameObject,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,AttachmentRule.KeepWorld,true);
             grabbed=handgrip[0].gameObject.GetComponent<CollectibleTreasure>();
+            if(grabbed.name=="CubeCollectible"){
+                rotate=true;
+            } else if(handgrip.Length>0){
+                rotate=false;
+            }
             Vector3 scaleChange = new Vector3(-0.01f, -0.01f, -0.01f);
             presize = grabbed.transform.localScale.y;
         }
@@ -120,6 +137,7 @@ public class TreasureHunter : MonoBehaviour
         if(OVRInput.GetUp(OVRInput.RawButton.LIndexTrigger)){
             score.text="let go button3";
             letGo();
+            //head.transform.position = new Vector3(0,-1,0);
             
         }
 
@@ -182,6 +200,11 @@ public class TreasureHunter : MonoBehaviour
             AttachmentRule howToAttach=pressedA?AttachmentRule.KeepWorld:AttachmentRule.SnapToTarget;
             attachGameObjectToAChildGameObject(outHit.collider.gameObject,rightPointerObject.gameObject,howToAttach,howToAttach,AttachmentRule.KeepWorld,true);
             grabbed=outHit.collider.gameObject.GetComponent<CollectibleTreasure>();
+            if(grabbed.name=="CubeCollectible"){
+                rotate=true;
+            }else{
+                rotate=false;
+            }
 
             //
             
